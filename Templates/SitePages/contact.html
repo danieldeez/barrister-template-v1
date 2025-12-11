@@ -1,89 +1,83 @@
 {% extends "base.html" %}
-{% load form_extras %}
-{% block title %}Contact | David Nugent BL{% endblock %}
+{% block title %}Initial Enquiry | {{ SITE_NAME }}{% endblock %}
 {% block content %}
 
-<!-- Contact page -->
+<!-- Initial Enquiry page (formerly Contact) -->
 <main class="py-5 bg-body">
   <section class="py-4">
     <div class="container-lg">
       <!-- Page header -->
       <header class="mb-5">
-        <h1 class="h3 fw-semibold mb-2">Contact</h1>
+        <h1 class="h3 fw-semibold mb-2">Submit an initial enquiry</h1>
         <p class="text-muted mb-0">
-          For enquiries or to check availability, you can use the form below or contact chambers directly.
+          Use this form to describe your legal matter. Your enquiry will be reviewed and you'll receive guidance on next steps.
         </p>
       </header>
+
+      <!-- Important Notice -->
+      <div class="alert alert-info mb-4">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Please note:</strong> Submitting this form does not create a barrister–client relationship and does not constitute legal advice.
+        This is an initial enquiry only.
+      </div>
 
       <div class="row g-5">
         <!-- Form column -->
         <div class="col-lg-7">
           <div class="card border-0 shadow-sm contact-card">
             <div class="card-body p-4">
-              <h2 class="h5 fw-semibold mb-3">Enquiry form</h2>
+              <h2 class="h5 fw-semibold mb-3">Describe your matter</h2>
               <form method="post" novalidate>
                 {% csrf_token %}
 
                 {% if form.errors %}
                 <div class="alert alert-danger alert-sm mb-3" role="alert">
-                  <small>Please correct the errors below.</small>
+                  <strong>Please correct the errors below.</strong>
                 </div>
                 {% endif %}
 
                 <div class="row g-3">
-                  <!-- Name -->
+                  <!-- Name (Optional) -->
                   <div class="col-md-6">
-                    <label for="{{ form.name.id_for_label }}" class="form-label contact-label">Name</label>
-                    {{ form.name|add_class:"form-control" }}
+                    <label for="{{ form.name.id_for_label }}" class="form-label contact-label">
+                      {{ form.name.label }}
+                    </label>
+                    {{ form.name }}
                     {% if form.name.errors %}
                       <div class="form-text text-danger small">{{ form.name.errors.0 }}</div>
                     {% endif %}
                   </div>
 
-                  <!-- Email -->
+                  <!-- Email (Optional) -->
                   <div class="col-md-6">
-                    <label for="{{ form.email.id_for_label }}" class="form-label contact-label">Email</label>
-                    {{ form.email|add_class:"form-control" }}
+                    <label for="{{ form.email.id_for_label }}" class="form-label contact-label">
+                      {{ form.email.label }}
+                    </label>
+                    {{ form.email }}
+                    <div class="form-text small">Allows us to respond if appropriate.</div>
                     {% if form.email.errors %}
                       <div class="form-text text-danger small">{{ form.email.errors.0 }}</div>
                     {% endif %}
                   </div>
 
-                  <!-- Phone -->
+                  <!-- Matter Description (Required) -->
                   <div class="col-12">
-                    <label for="{{ form.phone.id_for_label }}" class="form-label contact-label">Phone <span class="text-muted small">(optional)</span></label>
-                    {{ form.phone|add_class:"form-control" }}
-                    {% if form.phone.errors %}
-                      <div class="form-text text-danger small">{{ form.phone.errors.0 }}</div>
-                    {% endif %}
-                  </div>
-
-                  <!-- Message -->
-                  <div class="col-12">
-                    <label for="{{ form.message.id_for_label }}" class="form-label contact-label">Message</label>
-                    {{ form.message|add_class:"form-control" }}
-                    {% if form.message.errors %}
-                      <div class="form-text text-danger small">{{ form.message.errors.0 }}</div>
-                    {% endif %}
-                  </div>
-
-                  <!-- Consent -->
-                  <div class="col-12">
-                    <div class="form-check contact-consent">
-                      {{ form.consent|add_class:"form-check-input" }}
-                      <label class="form-check-label small" for="{{ form.consent.id_for_label }}">
-                        I understand that this form is for general enquiries and that no solicitor–client relationship is created by submitting it.
-                      </label>
-                      {% if form.consent.errors %}
-                        <div class="form-text text-danger small d-block mt-1">{{ form.consent.errors.0 }}</div>
-                      {% endif %}
+                    <label for="{{ form.raw_text.id_for_label }}" class="form-label contact-label">
+                      {{ form.raw_text.label }} <span class="text-danger">*</span>
+                    </label>
+                    {{ form.raw_text }}
+                    <div class="form-text small">
+                      {{ form.raw_text.help_text }}
                     </div>
+                    {% if form.raw_text.errors %}
+                      <div class="form-text text-danger small">{{ form.raw_text.errors.0 }}</div>
+                    {% endif %}
                   </div>
 
                   <!-- Submit -->
                   <div class="col-12 mt-4">
                     <button type="submit" class="btn btn-primary px-4">
-                      Submit enquiry
+                      <i class="bi bi-send me-2"></i>Submit enquiry
                     </button>
                   </div>
                 </div>
@@ -93,8 +87,9 @@
             <!-- Footer disclaimer -->
             <div class="card-footer bg-transparent border-0 pt-0 pb-3 px-4">
               <p class="small text-muted mb-0" style="line-height: 1.5;">
-                Information submitted through this form will be used only to respond to your enquiry.
-                Do not include sensitive or confidential information.
+                <i class="bi bi-shield-check me-1"></i>
+                Do not include highly sensitive or confidential information in your submission.
+                Your enquiry will be reviewed, and you'll be contacted if a consultation is appropriate.
               </p>
             </div>
           </div>
@@ -108,24 +103,24 @@
               <h2 class="h6 fw-semibold mb-3 contact-aside-heading">Chambers contact</h2>
               <p class="small text-muted mb-2">
                 <i class="bi bi-envelope me-2 text-primary"></i>
-                <a href="mailto:david.nugent@lawlibrary.ie" class="text-decoration-none">david.nugent@lawlibrary.ie</a>
+                <a href="mailto:{{ BARRISTER_EMAIL }}" class="text-decoration-none">{{ BARRISTER_EMAIL }}</a>
               </p>
               <p class="small text-muted mb-2">
                 <i class="bi bi-telephone me-2 text-primary"></i>
-                <a href="tel:012916043" class="text-decoration-none">01 291 6043</a>
+                <a href="tel:{{ BARRISTER_PHONE|cut:' ' }}" class="text-decoration-none">{{ BARRISTER_PHONE }}</a>
               </p>
               <p class="small text-muted mb-2">
                 <i class="bi bi-phone me-2 text-primary"></i>
-                <a href="tel:0867969769" class="text-decoration-none">086-796 9769</a> <span class="text-muted">(Mobile)</span>
+                <a href="tel:{{ BARRISTER_MOBILE|cut:' '|cut:'-' }}" class="text-decoration-none">{{ BARRISTER_MOBILE }}</a> <span class="text-muted">(Mobile)</span>
               </p>
               <p class="small text-muted mb-2">
                 <i class="bi bi-geo-alt me-2 text-primary"></i>
-                Law Library, Four Courts<br>
-                <span class="ms-4">Dublin 7, Ireland</span>
+                {{ CHAMBERS_ADDRESS_LINE1 }}<br>
+                <span class="ms-4">{{ CHAMBERS_ADDRESS_LINE2 }}</span>
               </p>
               <p class="small text-muted mb-0">
                 <i class="bi bi-mailbox me-2 text-primary"></i>
-                DX: 301175
+                {{ CHAMBERS_DX }}
               </p>
             </div>
 
@@ -133,15 +128,15 @@
             <div class="mb-4">
               <h2 class="h6 fw-semibold mb-3 contact-aside-heading">Urgent matters</h2>
               <p class="small text-muted mb-0" style="line-height: 1.6;">
-                If your enquiry is time-sensitive, please indicate this in your message or contact chambers by phone.
+                If your matter is time-sensitive, please indicate this in your enquiry description or contact chambers by phone directly.
               </p>
             </div>
 
-            <!-- Response times -->
+            <!-- Review process -->
             <div>
-              <h2 class="h6 fw-semibold mb-3 contact-aside-heading">Response times</h2>
+              <h2 class="h6 fw-semibold mb-3 contact-aside-heading">Review process</h2>
               <p class="small text-muted mb-0" style="line-height: 1.6;">
-                Enquiries are typically responded to within 1–2 business days. For immediate assistance, please call chambers directly.
+                Your enquiry will be reviewed, typically within 1–2 business days. You'll be contacted if a consultation is appropriate. For immediate assistance, please call chambers directly.
               </p>
             </div>
           </aside>

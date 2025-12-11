@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Practice Areas | David Nugent BL{% endblock %}
+{% block title %}Practice Areas | {{ SITE_NAME }}{% endblock %}
 {% block content %}
 
 <!-- Premium hero header -->
@@ -57,13 +57,14 @@
       <div class="col-lg-8">
         <h2 class="h4 fw-semibold mb-1">Discuss your matter</h2>
         <p class="text-muted mb-0">
-          Book a consultation to review your case and discuss your options.
+          Submit an initial enquiry or book a consultation to review your case and discuss your options.
         </p>
       </div>
       <div class="col-lg-4 text-lg-end">
-        <a href="/book/" class="btn btn-primary px-4">
-          <i class="bi bi-calendar-check me-2"></i>Book consultation
-        </a>
+        <div class="d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
+          <a href="/contact/" class="btn btn-primary">Submit enquiry</a>
+          <a href="/book/" class="btn btn-outline-secondary">Book consultation</a>
+        </div>
       </div>
     </div>
   </div>

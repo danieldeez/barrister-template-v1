@@ -19,15 +19,31 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings - MUST be set via environment variables
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-pg^h_n*gd#99gw1$82_^+4u=4#w2-o@#=yx_ydrq#=60h%#488")
-DEBUG = os.getenv("DEBUG", "False") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if os.getenv("ALLOWED_HOSTS") else []
+DEBUG = os.getenv("DEBUG", "True") == "True"  # Default to True for development
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if os.getenv("ALLOWED_HOSTS") else ["localhost", "127.0.0.1"]
 
 # Application-specific settings
-CALENDLY_SIGNING_KEY = os.getenv("CALENDLY_SIGNING_KEY", "")
+# AI Assistant (optional feature)
 LLM_BASE_URL = os.getenv("LLM_BASE_URL", "")
 LLM_API_KEY  = os.getenv("LLM_API_KEY", "")
 LLM_MODEL    = os.getenv("LLM_MODEL", "deepseek-chat")
 ASSISTANT_ENABLED = os.getenv("ASSISTANT_ENABLED", "0") == "1"
+
+# Barrister/Site Configuration
+# IMPORTANT: Customize these for your deployment
+SITE_NAME = os.getenv("SITE_NAME", "[Your Name] BL")
+BARRISTER_NAME = os.getenv("BARRISTER_NAME", "[Your Name]")
+BARRISTER_EMAIL = os.getenv("BARRISTER_EMAIL", "your.email@example.com")
+BARRISTER_PHONE = os.getenv("BARRISTER_PHONE", "01 XXX XXXX")
+BARRISTER_MOBILE = os.getenv("BARRISTER_MOBILE", "0XX XXX XXXX")
+CHAMBERS_ADDRESS_LINE1 = os.getenv("CHAMBERS_ADDRESS_LINE1", "Your Chambers")
+CHAMBERS_ADDRESS_LINE2 = os.getenv("CHAMBERS_ADDRESS_LINE2", "Your City, Your Country")
+CHAMBERS_DX = os.getenv("CHAMBERS_DX", "DX XXXXXX")
+YEAR_CALLED = os.getenv("YEAR_CALLED", "20XX")
+PRACTICE_AREAS_SHORT = os.getenv("PRACTICE_AREAS_SHORT", "Your practice areas")
+BARRISTER_BIO_FOOTER = os.getenv("BARRISTER_BIO_FOOTER", "Junior Counsel practising at the Bar. Providing focused advice and advocacy.")
+CIRCUITS = os.getenv("CIRCUITS", "Your Circuits")
+QUALIFICATIONS = os.getenv("QUALIFICATIONS", "Your Qualifications")
 
 CACHES = {
     "default": {
@@ -76,6 +92,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "pages.context_processors.assistant_enabled",
+                "pages.context_processors.barrister_config",
             ],
         },
     },

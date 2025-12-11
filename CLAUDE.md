@@ -1,9 +1,9 @@
 <project>
   <name>Barrister Django Website</name>
   <purpose>
-    This project is a professional Django-based website for barrister David Nugent.
-    It includes static pages, CMS-managed pages, blog/cases, a contact form, 
-    Calendly booking integration, and a lightweight AI assistant endpoint.
+    This project is a professional Django-based website template for barristers.
+    It includes static pages, CMS-managed pages, blog/cases, a contact form,
+    a custom booking system, and a lightweight AI assistant endpoint.
   </purpose>
 
   <rules>

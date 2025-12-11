@@ -1,0 +1,7 @@
+# Summary Generation Prompt (PLACEHOLDER)
+
+This file will contain the production prompt for generating concise case summaries.
+
+Status: Not yet implemented (PHASE 2)
+
+See docs/prompts.md for expected input/output format.

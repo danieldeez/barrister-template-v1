@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ page.title|default:"About" }} | Barrister{% endblock %}
+{% block title %}{{ page.title|default:"About" }} | {{ SITE_NAME }}{% endblock %}
 {% block content %}
 
 <!-- About hero with portrait and intro -->
@@ -13,21 +13,21 @@
           <div class="about-photo-frame">
             {% if page.hero_image %}
               <img src="/static/img/{{ page.hero_image }}"
-                   alt="Portrait of barrister David Nugent"
+                   alt="Portrait of {{ BARRISTER_NAME }}"
                    class="w-100 h-100 about-portrait">
             {% else %}
               <img src="{% static 'img/headshot.jpg' %}"
-                   alt="Portrait of barrister David Nugent"
+                   alt="Portrait of {{ BARRISTER_NAME }}"
                    class="w-100 h-100 about-portrait">
             {% endif %}
           </div>
           <div class="card-body">
-            <h1 class="h4 mb-1 about-name">David&nbsp;Nugent&nbsp;BL</h1>
-            <p class="small about-subtitle mb-3">Junior Counsel: 2021</p>
+            <h1 class="h4 mb-1 about-name">{{ SITE_NAME }}</h1>
+            <p class="small about-subtitle mb-3">Junior Counsel: {{ YEAR_CALLED }}</p>
             <ul class="list-unstyled small about-facts mb-0">
-              <li class="mb-2"><i class="bi bi-award me-2 text-primary"></i>LLB (Hons) Irish Law</li>
+              <li class="mb-2"><i class="bi bi-award me-2 text-primary"></i>{{ QUALIFICATIONS }}</li>
               <li class="mb-2"><i class="bi bi-briefcase me-2 text-primary"></i>Barrister at Law</li>
-              <li class="mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>Dublin, Eastern &amp; Midland Circuits</li>
+              <li class="mb-2"><i class="bi bi-geo-alt me-2 text-primary"></i>{{ CIRCUITS }}</li>
               <li><i class="bi bi-check-circle me-2 text-primary"></i>Direct professional access provided</li>
             </ul>
           </div>
@@ -43,9 +43,9 @@
           {% if page.body %}
             {{ page.body|safe }}
           {% else %}
-            <p class="mb-3">David Nugent is a barrister practising at the Bar of Ireland, specialising in commercial and employment matters. Clear, practical advice for individuals and businesses.</p>
-            <p class="mb-3">He provides focused advice and advocacy to individuals, businesses and public bodies across commercial, employment and regulatory disputes, including contract disputes, unfair dismissal claims, professional discipline proceedings and statutory appeals.</p>
-            <p class="mb-0">David is instructed directly by solicitors and, where appropriate, by clients under the direct professional access scheme.</p>
+            <p class="mb-3">{{ BARRISTER_NAME }} is a barrister practising at the Bar of Ireland, specialising in {{ PRACTICE_AREAS_SHORT|lower }}. Clear, practical advice for individuals and businesses.</p>
+            <p class="mb-3">Providing focused advice and advocacy to individuals, businesses and public bodies across various legal matters.</p>
+            <p class="mb-0">Instructions are accepted directly from solicitors and, where appropriate, from clients under the direct professional access scheme.</p>
           {% endif %}
         </div>
       </div>
@@ -60,18 +60,15 @@
       <div class="col-md-6">
         <h3 class="h5 fw-semibold mb-3">Areas of practice</h3>
         <ul class="small text-muted mb-0 ps-3 about-list">
-          <li>Commercial/Chancery</li>
-          <li>Criminal</li>
-          <li>General Practice</li>
-          <li>Tort &amp; Personal Injury Law</li>
+          <li>{{ PRACTICE_AREAS_SHORT }}</li>
         </ul>
       </div>
       <div class="col-md-6">
         <h3 class="h5 fw-semibold mb-3">Qualifications</h3>
         <ul class="small text-muted mb-0 ps-3 about-list">
-          <li>LLB (Hons) Irish Law</li>
+          <li>{{ QUALIFICATIONS }}</li>
           <li>Barrister at Law</li>
-          <li>Called to the Bar: 2021</li>
+          <li>Called to the Bar: {{ YEAR_CALLED }}</li>
         </ul>
       </div>
     </div>
@@ -80,9 +77,7 @@
       <div class="col-md-6">
         <h3 class="h5 fw-semibold mb-3">Circuits</h3>
         <ul class="small text-muted mb-0 ps-3 about-list">
-          <li>Dublin Circuit</li>
-          <li>Eastern Circuit</li>
-          <li>Midland Circuit</li>
+          <li>{{ CIRCUITS }}</li>
         </ul>
       </div>
       <div class="col-md-6">
@@ -103,13 +98,13 @@
       <div class="col-lg-8">
         <h3 class="h5 fw-semibold mb-1">Enquiries and instructions</h3>
         <p class="text-muted mb-0">
-          For enquiries or to discuss a potential instruction, you can contact chambers or book a consultation.
+          Ready to book a consultation? Or submit an initial enquiry to discuss your matter first.
         </p>
       </div>
       <div class="col-lg-4 text-lg-end">
         <div class="d-flex flex-column flex-sm-row justify-content-lg-end gap-2">
-          <a href="/book/" class="btn btn-primary">Book consultation</a>
-          <a href="/contact/" class="btn btn-outline-secondary">Contact chambers</a>
+          <a href="/contact/" class="btn btn-primary">Submit enquiry</a>
+          <a href="/book/" class="btn btn-outline-secondary">Book consultation</a>
         </div>
       </div>
     </div>

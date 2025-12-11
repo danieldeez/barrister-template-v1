@@ -14,7 +14,7 @@ print("Creating Privacy Policy...")
 privacy, created = SitePage.objects.get_or_create(slug="privacy")
 privacy.title = "Privacy Policy"
 privacy.body = """<h3>1. Introduction</h3>
-<p>David Nugent ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information when you use our website or engage our legal services.</p>
+<p>This website ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and safeguard your personal information when you use our website or engage our legal services.</p>
 
 <h3>2. Information We Collect</h3>
 <p>We may collect the following types of information:</p>
@@ -58,13 +58,13 @@ terms.body = """<h3>1. Acceptance of Terms</h3>
 <p>The information on this website is for general informational purposes only and does not constitute legal advice. No solicitor-client relationship is created by your use of this website or by contacting us through the website.</p>
 
 <h3>3. Professional Services</h3>
-<p>David Nugent is a barrister practising in Ireland. Legal services are provided in accordance with the Code of Conduct of the Bar of Ireland and applicable professional regulations.</p>
+<p>Legal services are provided in accordance with the Code of Conduct of the Bar of Ireland and applicable professional regulations.</p>
 
 <h3>4. Limitation of Liability</h3>
 <p>While we strive to keep information accurate and up-to-date, we make no representations or warranties about the completeness, accuracy, or reliability of information on this website.</p>
 
 <h3>5. Intellectual Property</h3>
-<p>All content on this website, including text, graphics, logos, and images, is the property of David Nugent or used with permission and is protected by copyright law.</p>
+<p>All content on this website, including text, graphics, logos, and images, is protected by copyright law.</p>
 
 <h3>6. External Links</h3>
 <p>This website may contain links to external websites. We are not responsible for the content or privacy practices of third-party sites.</p>
@@ -84,13 +84,13 @@ print(f"  {'Created' if created else 'Updated'} Terms of Use")
 print("Creating About page...")
 about, created = SitePage.objects.get_or_create(slug="about")
 about.title = "About"
-about.body = """<p class="lead">David Nugent is a barrister specialising in commercial and employment law, with a practice spanning Ireland and the UK.</p>
+about.body = """<p class="lead">[Barrister Name] is a barrister specialising in [practice areas], with a practice spanning [jurisdiction].</p>
 
 <h3 class="mt-4">Called to the Bar</h3>
-<p>David was called to the Bar of Ireland in 2015 and has since developed a busy practice advising individuals, businesses, and institutions on complex commercial and employment matters.</p>
+<p>[Barrister Name] was called to the Bar of Ireland in [year] and has since developed a busy practice advising individuals, businesses, and institutions on complex matters.</p>
 
 <h3 class="mt-4">Practice Focus</h3>
-<p>David's practice focuses on three main areas:</p>
+<p>The practice focuses on several main areas:</p>
 <ul>
   <li><strong>Employment Law:</strong> Advising on unfair dismissal claims, discrimination, redundancy, employment contracts, and workplace investigations</li>
   <li><strong>Commercial Litigation:</strong> Contract disputes, shareholder matters, injunctive relief, and debt recovery proceedings</li>
@@ -99,16 +99,16 @@ about.body = """<p class="lead">David Nugent is a barrister specialising in comm
 
 <h3 class="mt-4">Qualifications & Memberships</h3>
 <ul>
-  <li>Barrister-at-Law, King's Inns (2015)</li>
-  <li>BCL (Law and Business), University College Dublin</li>
+  <li>Barrister-at-Law, King's Inns</li>
+  <li>[Degree], [Institution]</li>
   <li>Member, Bar of Ireland</li>
-  <li>Member, Employment Law Association of Ireland</li>
+  <li>[Professional memberships]</li>
 </ul>
 
 <h3 class="mt-4">Approach</h3>
-<p>David is known for providing clear, practical advice focused on commercial outcomes. He works closely with solicitors and clients to develop effective strategies, whether through negotiation, mediation, or litigation.</p>
+<p>Known for providing clear, practical advice focused on commercial outcomes. Working closely with solicitors and clients to develop effective strategies, whether through negotiation, mediation, or litigation.</p>
 
-<p>David accepts instructions from solicitors and, where appropriate under the Bar of Ireland's direct access scheme, from members of the public.</p>
+<p>Instructions are accepted from solicitors and, where appropriate under the Bar of Ireland's direct access scheme, from members of the public.</p>
 """
 about.save()
 print(f"  {'Created' if created else 'Updated'} About page")

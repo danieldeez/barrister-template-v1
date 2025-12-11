@@ -1,6 +1,6 @@
 # Deployment Guide for Render.com
 
-This guide walks you through deploying the David Nugent BL Django website to Render.com.
+This guide walks you through deploying the barrister Django website template to Render.com.
 
 ## Prerequisites
 
@@ -52,7 +52,7 @@ Save this value - you'll need it for Render environment variables.
    - Select your `barrister-site` repository
 
 3. **Configure the service**:
-   - **Name**: `david-nugent-bl` (or your choice)
+   - **Name**: `your-name-bl` (e.g., "jane-smith-bl")
    - **Region**: Choose closest to your users
    - **Branch**: `main`
    - **Runtime**: `Python 3`
@@ -72,21 +72,38 @@ DEBUG=False
 ALLOWED_HOSTS=your-app-name.onrender.com
 ```
 
-### Optional but Recommended:
+### Site Configuration (Required):
+
+```
+SITE_NAME=Your Name BL
+BARRISTER_NAME=Your Name
+BARRISTER_EMAIL=your.email@example.com
+BARRISTER_PHONE=01 XXX XXXX
+BARRISTER_MOBILE=0XX XXX XXXX
+CHAMBERS_ADDRESS_LINE1=Your Chambers
+CHAMBERS_ADDRESS_LINE2=Your City, Your Country
+CHAMBERS_DX=DX XXXXXX
+YEAR_CALLED=20XX
+PRACTICE_AREAS_SHORT=Your practice areas
+BARRISTER_BIO_FOOTER=Junior Counsel practising at the Bar
+CIRCUITS=Your Circuits
+QUALIFICATIONS=Your Qualifications
+```
+
+### AI Assistant (Optional):
 
 ```
 LLM_BASE_URL=https://api.deepseek.com
 LLM_API_KEY=<your-llm-api-key>
 LLM_MODEL=deepseek-chat
 ASSISTANT_ENABLED=1
-CALENDLY_SIGNING_KEY=<your-calendly-key>
 ```
 
 **Note**: After your first deploy, you'll get the actual Render URL. Update `ALLOWED_HOSTS` to include it.
-Example: `ALLOWED_HOSTS=david-nugent-bl.onrender.com`
+Example: `ALLOWED_HOSTS=your-name-bl.onrender.com`
 
 You can also add multiple hosts separated by commas:
-`ALLOWED_HOSTS=david-nugent-bl.onrender.com,www.yourcustomdomain.com`
+`ALLOWED_HOSTS=your-name-bl.onrender.com,www.yourcustomdomain.com`
 
 ## Step 5: Deploy
 
@@ -99,7 +116,7 @@ You can also add multiple hosts separated by commas:
 
 3. **Monitor the build logs** for any errors
 
-4. Once complete, you'll see a URL like: `https://david-nugent-bl.onrender.com`
+4. Once complete, you'll see a URL like: `https://your-name-bl.onrender.com`
 
 ## Step 6: Verify Deployment
 
@@ -113,7 +130,7 @@ You can also add multiple hosts separated by commas:
 ## Step 7: Add Custom Domain (Optional)
 
 1. In Render dashboard, go to Settings → Custom Domains
-2. Add your domain (e.g., `davidnugent.ie`)
+2. Add your domain (e.g., `yourname.ie`)
 3. Follow Render's DNS configuration instructions
 4. Update `ALLOWED_HOSTS` environment variable to include your domain
 

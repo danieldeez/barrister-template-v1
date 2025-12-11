@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from ckeditor.fields import RichTextField
+from uuid import uuid4
 
 class Lead(models.Model):
     name = models.CharField(max_length=120)
@@ -127,3 +128,120 @@ class CaseStudy(PostBase):
 
     def get_absolute_url(self):
         return reverse("case_detail", args=[self.slug])
+
+class IntakeSession(models.Model):
+    """
+    Captures initial enquiries from potential clients through the intake form.
+    Fields for AI processing (structured_output, recommended_slot_type, is_suitable)
+    are prepared but not yet used in PHASE 1.
+    """
+    uuid = models.UUIDField(default=uuid4, unique=True, editable=False)
+    name = models.CharField(max_length=200, blank=True, help_text="Optional user name")
+    email = models.EmailField(blank=True, help_text="Optional user email")
+    raw_text = models.TextField(help_text="User's free-text description of their matter")
+    structured_output = models.JSONField(null=True, blank=True, help_text="AI-generated structured data (PHASE 2)")
+    recommended_slot_type = models.CharField(max_length=100, blank=True, help_text="AI-recommended consultation type (PHASE 2)")
+    is_suitable = models.BooleanField(null=True, blank=True, help_text="AI suitability assessment (PHASE 2)")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Intake Session"
+        verbose_name_plural = "Intake Sessions"
+
+    def __str__(self):
+        return f"{self.created_at.date()} — {self.email or 'Anonymous'} — {self.uuid}"
+
+class AvailabilitySlot(models.Model):
+    """
+    Represents owner-defined availability windows for consultations.
+    Part of the custom booking system.
+    """
+    SLOT_TYPE_CHOICES = [
+        ('initial', 'Initial Consultation'),
+        ('followup', 'Follow-up'),
+        ('general', 'General'),
+    ]
+
+    date = models.DateField(help_text="Date of availability")
+    start_time = models.TimeField(help_text="Start time (e.g., 14:00)")
+    end_time = models.TimeField(help_text="End time (e.g., 15:00)")
+    slot_type = models.CharField(
+        max_length=50,
+        choices=SLOT_TYPE_CHOICES,
+        default='initial',
+        help_text="Type of consultation"
+    )
+    is_available = models.BooleanField(
+        default=True,
+        help_text="Whether this slot is currently bookable"
+    )
+    notes = models.TextField(blank=True, help_text="Internal notes (not visible to public)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['date', 'start_time']
+        verbose_name = "Availability Slot"
+        verbose_name_plural = "Availability Slots"
+
+    def __str__(self):
+        return f"{self.date} {self.start_time.strftime('%H:%M')}-{self.end_time.strftime('%H:%M')} ({self.get_slot_type_display()})"
+
+    def get_formatted_time(self):
+        """Returns formatted time range for display (e.g., '2:00 PM - 3:00 PM')"""
+        from datetime import datetime
+        start = datetime.combine(self.date, self.start_time)
+        end = datetime.combine(self.date, self.end_time)
+        return f"{start.strftime('%-I:%M %p')} - {end.strftime('%-I:%M %p')}"
+
+    def duration_minutes(self):
+        """Calculate duration in minutes from start and end times"""
+        from datetime import datetime, timedelta
+        start_dt = datetime.combine(self.date, self.start_time)
+        end_dt = datetime.combine(self.date, self.end_time)
+        delta = end_dt - start_dt
+        return int(delta.total_seconds() / 60)
+
+    def is_in_past(self):
+        """Check if this slot's date/time has already passed"""
+        from datetime import datetime
+        from django.utils import timezone
+        slot_datetime = datetime.combine(self.date, self.end_time)
+        # Make timezone-aware
+        slot_datetime = timezone.make_aware(slot_datetime)
+        return timezone.now() > slot_datetime
+
+class BookingSubmission(models.Model):
+    """
+    Represents a client booking submission for a specific availability slot.
+    Part of the custom booking system.
+    """
+    slot = models.ForeignKey(
+        AvailabilitySlot,
+        on_delete=models.CASCADE,
+        related_name="bookings",
+        help_text="The availability slot being booked"
+    )
+    intake = models.ForeignKey(
+        IntakeSession,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="bookings",
+        help_text="Optional link to the intake session that led to this booking"
+    )
+    name = models.CharField(max_length=120, help_text="Client name")
+    email = models.EmailField(help_text="Client email address")
+    phone = models.CharField(max_length=50, blank=True, help_text="Client phone number (optional)")
+    description = models.TextField(help_text="Brief description of the matter")
+    is_paid = models.BooleanField(default=False, help_text="Whether payment has been received")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Booking Submission"
+        verbose_name_plural = "Booking Submissions"
+
+    def __str__(self):
+        return f"{self.name} – {self.slot.date} {self.slot.start_time.strftime('%H:%M')}"
