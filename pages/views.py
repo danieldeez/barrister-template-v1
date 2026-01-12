@@ -6,6 +6,7 @@ from django.contrib import messages
 from .forms import ContactForm, HomepageSettingsForm, AboutPageForm, SitePageForm, PracticeAreaForm, BlogPostForm, CaseStudyForm, IntakeForm, AvailabilitySlotForm, BookingSubmissionForm
 import hmac, hashlib, json
 import re, time, requests
+from datetime import datetime, timedelta
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse, HttpResponseBadRequest
 from .models import Booking, HomepageSettings, PracticeArea
 from .models import SitePage, PracticeArea, BlogPost, CaseStudy, IntakeSession, AvailabilitySlot, BookingSubmission
@@ -164,17 +165,19 @@ def intake_start(request):
 
 def classify_intake_session(session):
     """
-    Lightweight AI classification for intake sessions.
+    Lightweight AI triage for intake sessions.
 
-    Quickly determines:
-    - is_suitable: Whether the enquiry appears suitable for consultation
-    - recommended_slot_type: Type of consultation recommended (initial/followup/general)
+    ONLY determines:
+    - is_suitable: Whether the enquiry appears suitable for consultation (True/False/None)
+
+    Does NOT set recommended_slot_type - booking flow is generic.
 
     Returns True if classification was successful, False otherwise.
     Does NOT raise exceptions - fails silently and leaves fields unchanged.
+    If AI fails, is_suitable remains None and user sees conservative message.
     """
     # Check if already classified
-    if session.is_suitable is not None and session.recommended_slot_type:
+    if session.is_suitable is not None:
         return True  # Already classified, skip
 
     # Load lightweight classification prompt
@@ -198,21 +201,20 @@ def classify_intake_session(session):
             timeout=10        # Quick timeout
         )
 
-        # Update session with classification results
+        # Update session with ONLY suitability assessment
         session.is_suitable = result.get("is_suitable", None)
-        session.recommended_slot_type = result.get("recommended_slot_type", "")
 
-        # Store minimal structured output
+        # Store triage results in structured_output for record-keeping
         if session.structured_output is None:
             session.structured_output = {}
-        session.structured_output["quick_classification"] = result
+        session.structured_output["triage"] = result
 
         session.save()
         return True
 
     except (LLMError, Exception):
         # Fail silently - LLM unavailable or error
-        # Leave fields as None/blank so user sees conservative message
+        # Leave is_suitable as None so user sees conservative message
         return False
 
 def intake_thank_you(request, intake_uuid):
@@ -785,15 +787,13 @@ def book_index(request):
     Shows list of available dates.
 
     Optional query parameters:
-    - intake: UUID of related IntakeSession (for context display)
-    - slot_type: Preferred slot type (initial/followup/general) for filtering
+    - intake: UUID of related IntakeSession (for context display only)
     """
     from datetime import date
     from collections import defaultdict
 
     # Get optional context from query parameters
     intake_uuid = request.GET.get('intake')
-    preferred_slot_type = request.GET.get('slot_type')
 
     # Get all available slots in the future
     today = date.today()
@@ -801,10 +801,6 @@ def book_index(request):
         date__gte=today,
         is_available=True
     ).order_by('date', 'start_time')
-
-    # Optional: filter by slot type if provided
-    if preferred_slot_type and preferred_slot_type in ['initial', 'followup', 'general']:
-        available_slots = available_slots.filter(slot_type=preferred_slot_type)
 
     # Group slots by date
     dates_with_counts = defaultdict(int)
@@ -817,7 +813,6 @@ def book_index(request):
     context = {
         "dates_list": dates_list,
         "intake_uuid": intake_uuid,
-        "preferred_slot_type": preferred_slot_type,
     }
 
     return render(request, "SitePages/booking_index.html", context)
@@ -982,3 +977,147 @@ def owner_booking_toggle_paid(request, pk):
         messages.success(request, f"Booking marked as {status}.")
 
     return redirect("owner_booking_list")
+
+def calendar_feed(request, secret_key):
+    """
+    Private iCal feed for booking submissions.
+
+    Generates a read-only ICS calendar feed containing all future bookings.
+    The feed is protected by a secret key that must be included in the URL.
+
+    Usage:
+    1. Set CALENDAR_FEED_SECRET in your .env file (e.g., a random 32-character string)
+    2. Subscribe to: https://yourdomain.com/calendar/<secret_key>.ics
+
+    To subscribe in Outlook:
+    - File > Account Settings > Internet Calendars > New
+    - Paste the URL above
+    - Outlook will refresh automatically (typically every few hours)
+
+    To subscribe in Google Calendar:
+    - Settings > Add calendar > From URL
+    - Paste the URL above
+
+    To subscribe in Apple Calendar:
+    - File > New Calendar Subscription
+    - Paste the URL above
+
+    Notes:
+    - This feed is READ-ONLY; changes in your calendar app won't affect the website
+    - Only confirmed future bookings are included (starting from now onwards)
+    - The feed updates automatically when clients book new consultations
+    - Keep the URL private; anyone with the secret key can view your bookings
+    - GDPR-safe: Only minimal data (name, intake ref) is included in calendar
+    """
+    # Security: validate secret key
+    configured_secret = settings.CALENDAR_FEED_SECRET
+    if not configured_secret or secret_key != configured_secret:
+        return HttpResponse("Not found", status=404)
+
+    # Get current time for filtering
+    now = timezone.now()
+
+    # Query all bookings (we'll filter by datetime in Python for precision)
+    # Get bookings from today onwards, then filter by exact datetime
+    today = now.date()
+    bookings = BookingSubmission.objects.select_related('slot', 'intake').filter(
+        slot__date__gte=today
+    ).order_by('slot__date', 'slot__start_time')
+
+    # Generate ICS content
+    domain = request.get_host()
+
+    # Helper function to escape text for ICS format
+    def ics_escape(text):
+        """
+        Escape special characters for iCalendar text fields per RFC 5545.
+        Backslash, semicolon, comma, newline must be escaped.
+        """
+        if not text:
+            return ""
+        text = str(text)
+        # Order matters: escape backslash first
+        text = text.replace('\\', '\\\\')
+        text = text.replace(';', '\\;')
+        text = text.replace(',', '\\,')
+        text = text.replace('\r\n', '\\n')
+        text = text.replace('\n', '\\n')
+        text = text.replace('\r', '\\n')
+        return text
+
+    ics_lines = [
+        "BEGIN:VCALENDAR",
+        "VERSION:2.0",
+        f"PRODID:-//{ics_escape(settings.SITE_NAME)}//Booking Calendar//EN",
+        "CALSCALE:GREGORIAN",
+        "METHOD:PUBLISH",
+        f"X-WR-CALNAME:{ics_escape(settings.BARRISTER_NAME)} - Consultations",
+        "X-WR-TIMEZONE:UTC",
+    ]
+
+    for booking in bookings:
+        slot = booking.slot
+
+        # Combine date and time to create timezone-aware datetime objects
+        start_dt = timezone.make_aware(
+            datetime.combine(slot.date, slot.start_time)
+        )
+        end_dt = timezone.make_aware(
+            datetime.combine(slot.date, slot.end_time)
+        )
+
+        # Skip if the consultation has already started (filter by start time, not end time)
+        if start_dt < now:
+            continue
+
+        # Format datetimes for ICS (UTC format: YYYYMMDDTHHmmssZ)
+        start_str = start_dt.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        end_str = end_dt.astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+        # Build GDPR-safe description with minimal data
+        # Only include intake reference and a note to check CRM
+        description_parts = []
+        if booking.intake:
+            description_parts.append(f"Intake Ref: {booking.intake.uuid}")
+        description_parts.append("See CRM for details.")
+
+        description = ics_escape("\\n".join(description_parts))
+
+        # Generate unique ID for this event
+        uid = f"booking-{booking.id}@{domain}"
+
+        # Use timezone.now() for DTSTAMP (not deprecated datetime.utcnow())
+        dtstamp = timezone.now().astimezone(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+
+        # Build client name for summary (or fallback to "Consultation")
+        client_name = booking.name if booking.name else "Client"
+        summary = ics_escape(f"Consultation - {client_name}")
+
+        # Build location string with proper escaping
+        location = ics_escape(f"{settings.CHAMBERS_ADDRESS_LINE1}, {settings.CHAMBERS_ADDRESS_LINE2}")
+
+        # Create VEVENT
+        ics_lines.extend([
+            "BEGIN:VEVENT",
+            f"UID:{uid}",
+            f"DTSTAMP:{dtstamp}",
+            f"DTSTART:{start_str}",
+            f"DTEND:{end_str}",
+            f"SUMMARY:{summary}",
+            f"DESCRIPTION:{description}",
+            f"LOCATION:{location}",
+            "STATUS:CONFIRMED",
+            "TRANSP:OPAQUE",
+            "END:VEVENT",
+        ])
+
+    ics_lines.append("END:VCALENDAR")
+
+    # Join with CRLF (required by ICS spec RFC 5545)
+    ics_content = "\r\n".join(ics_lines)
+
+    # Return as calendar file
+    response = HttpResponse(ics_content, content_type="text/calendar; charset=utf-8")
+    response["Content-Disposition"] = f'inline; filename="{settings.BARRISTER_NAME.replace(" ", "_")}_bookings.ics"'
+
+    return response
