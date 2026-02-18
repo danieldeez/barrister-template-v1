@@ -74,6 +74,23 @@
                     {% endif %}
                   </div>
 
+                  <!-- Consent checkbox -->
+                  <div class="col-12">
+                    <div class="form-check">
+                      {{ form.consent }}
+                      <label class="form-check-label" for="{{ form.consent.id_for_label }}">
+                        {{ form.consent.label|safe }}
+                        <span class="text-danger">*</span>
+                      </label>
+                      {% if form.consent.errors %}
+                        <div class="form-text text-danger small">{{ form.consent.errors.0 }}</div>
+                      {% endif %}
+                      {% if form.consent.help_text %}
+                        <small class="text-muted d-block mt-1">{{ form.consent.help_text }}</small>
+                      {% endif %}
+                    </div>
+                  </div>
+
                   <!-- Submit -->
                   <div class="col-12 mt-4">
                     <button type="submit" class="btn btn-primary px-4">

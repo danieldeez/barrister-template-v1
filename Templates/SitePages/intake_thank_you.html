@@ -66,7 +66,7 @@
                 If your matter is time-sensitive or urgent, please contact chambers directly in addition to booking online.
               </p>
               <div class="d-grid gap-2 d-sm-flex">
-                <a href="{% url 'book_index' %}?intake={{ intake_session.uuid }}&slot_type={{ intake_session.recommended_slot_type|urlencode }}" class="btn btn-primary">
+                <a href="{% url 'book_index' %}?intake={{ intake_session.uuid }}" class="btn btn-primary">
                   <i class="bi bi-calendar-check me-2"></i>Book a Consultation
                 </a>
                 <a href="{% url 'contact' %}" class="btn btn-outline-secondary">
