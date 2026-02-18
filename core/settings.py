@@ -18,8 +18,15 @@ load_dotenv()  # take environment variables from .env.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings - MUST be set via environment variables
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-pg^h_n*gd#99gw1$82_^+4u=4#w2-o@#=yx_ydrq#=60h%#488")
-DEBUG = os.getenv("DEBUG", "True") == "True"  # Default to True for development
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    if os.getenv("DEBUG") == "True":
+        # Development fallback - unsafe for production
+        SECRET_KEY = "django-insecure-pg^h_n*gd#99gw1$82_^+4u=4#w2-o@#=yx_ydrq#=60h%#488"
+    else:
+        raise ValueError("SECRET_KEY environment variable must be set in production")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"  # Default to False for production safety
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",") if os.getenv("ALLOWED_HOSTS") else ["localhost", "127.0.0.1"]
 
 # Application-specific settings
