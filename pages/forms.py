@@ -132,6 +132,12 @@ class IntakeForm(forms.ModelForm):
     Public intake form for capturing initial enquiries.
     Collects optional contact information and required matter description.
     """
+    consent = forms.BooleanField(
+        required=True,
+        label='I consent to my data being processed as described in the <a href="/privacy/" target="_blank">Privacy Policy</a>',
+        help_text="We collect and process your information solely for the purpose of assessing your enquiry and arranging consultations."
+    )
+
     class Meta:
         model = IntakeSession
         fields = ["name", "email", "raw_text"]
@@ -201,6 +207,12 @@ class AvailabilitySlotForm(forms.ModelForm):
         return cleaned_data
 
 class BookingSubmissionForm(forms.ModelForm):
+    consent = forms.BooleanField(
+        required=True,
+        label='I consent to my data being processed as described in the <a href="/privacy/" target="_blank">Privacy Policy</a>',
+        help_text="We collect and process your information solely for the purpose of managing your consultation booking."
+    )
+
     class Meta:
         model = BookingSubmission
         fields = ["name", "email", "phone", "description"]
