@@ -55,32 +55,6 @@ BARRISTER_BIO_FOOTER = os.getenv("BARRISTER_BIO_FOOTER", "Junior Counsel practis
 CIRCUITS = os.getenv("CIRCUITS", "Your Circuits")
 QUALIFICATIONS = os.getenv("QUALIFICATIONS", "Your Qualifications")
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-        },
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "WARNING",
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console"],
-            "level": "WARNING",
-            "propagate": False,
-        },
-        "django.request": {
-            "handlers": ["console"],
-            "level": "ERROR",
-            "propagate": False,
-        },
-    },
-}
-
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

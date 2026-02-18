@@ -11,7 +11,15 @@
       <div class="col-lg-4">
         <aside class="about-aside card border-0 shadow-sm bg-white">
           <div class="about-photo-frame">
-            <div class="profile-placeholder"></div>
+            {% if page.hero_image %}
+              <img src="/static/img/{{ page.hero_image }}"
+                   alt="Portrait of {{ BARRISTER_NAME }}"
+                   class="w-100 h-100 about-portrait">
+            {% else %}
+              <img src="{% static 'img/headshot.jpg' %}"
+                   alt="Portrait of {{ BARRISTER_NAME }}"
+                   class="w-100 h-100 about-portrait">
+            {% endif %}
           </div>
           <div class="card-body">
             <h1 class="h4 mb-1 about-name">{{ SITE_NAME }}</h1>
